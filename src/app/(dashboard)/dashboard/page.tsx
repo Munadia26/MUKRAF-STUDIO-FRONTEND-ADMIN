@@ -62,7 +62,7 @@ export default function DashboardPage() {
           iconColor="text-[#00d4ff]"
         />
         <StatCard
-          title="Total Member"
+          title="Total Client"
           value={isLoading ? "..." : stats?.totalMembers || 0}
           icon={Users}
           color="bg-gradient-to-br from-[#1e3a5f] to-[#00d4ff]"
