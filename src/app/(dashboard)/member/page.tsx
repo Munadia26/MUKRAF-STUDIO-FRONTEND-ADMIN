@@ -40,10 +40,10 @@ export default function MemberAdminPage() {
       <div className="flex items-center justify-between border-b pb-4">
         <div className="flex items-center gap-3">
           <Users className="text-[#1e3a5f]" size={32} />
-          <h1 className="text-2xl font-bold uppercase tracking-tight text-gray-800">Manajemen Tim</h1>
+          <h1 className="text-2xl font-bold uppercase tracking-tight text-gray-800">Manajemen Client</h1>
         </div>
         <button onClick={handleAddNew} className="flex items-center gap-2 bg-[#1e3a5f] text-white px-6 py-3 rounded-xl font-semibold shadow-lg">
-          <Plus size={20} /> Tambah Member
+          <Plus size={20} /> Tambah Client
         </button>
       </div>
 
@@ -51,8 +51,7 @@ export default function MemberAdminPage() {
         <table className="w-full text-left">
           <thead className="bg-gray-50 border-b">
             <tr>
-              <th className="px-6 py-4 text-xs font-semibold text-gray-600 uppercase">Member</th>
-              <th className="px-6 py-4 text-xs font-semibold text-gray-600 uppercase">Jabatan</th>
+              <th className="px-6 py-4 text-xs font-semibold text-gray-600 uppercase">Client</th>
               <th className="px-6 py-4 text-center text-xs font-semibold text-gray-600 uppercase">Aksi</th>
             </tr>
           </thead>
@@ -63,7 +62,6 @@ export default function MemberAdminPage() {
                   <img src={`http://localhost:3000/uploads/${item.image}`} className="h-12 w-12 rounded-full object-cover border" alt={item.name} />
                   <span className="font-bold text-sm text-gray-900 uppercase">{item.name}</span>
                 </td>
-                <td className="px-6 py-4 text-sm text-gray-500 font-medium uppercase">{item.position}</td>
                 <td className="px-6 py-4">
                   <div className="flex justify-center gap-2">
                     <button onClick={() => handleEdit(item)} className="p-2 bg-green-50 text-green-600 rounded-lg hover:bg-green-100"><PencilLine size={18} /></button>

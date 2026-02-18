@@ -24,7 +24,7 @@ export const Sidebar = () => {
     { title: "Kategori Produk", href: "/category", icon: Tags },
     { title: "Product", href: "/product", icon: Package },
     { title: "Artikel", href: "/articles", icon: FileText },
-    { title: "Member", href: "/member", icon: Users },
+    { title: "Client", href: "/member", icon: Users },
   ];
 
   // Fungsi untuk menangani klik logout
