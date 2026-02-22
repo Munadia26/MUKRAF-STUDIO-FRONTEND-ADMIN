@@ -1,24 +1,17 @@
 "use client";
 import { useForm } from "react-hook-form";
-import { useState, useEffect, useMemo } from "react";
-import dynamic from "next/dynamic";
+import { useState, useEffect } from "react";
 import { useProductMutations } from "@/src/hooks/useProduct";
 import { useCategories } from "@/src/hooks/useCategory";
 import { Image as ImageIcon, Save, Loader2, RefreshCw, Link as LinkIcon } from "lucide-react";
 import { toast } from "sonner";
-
-const ReactQuill = dynamic(() => import("react-quill-new"), { 
-  ssr: false,
-  loading: () => <div className="h-40 w-full bg-gray-50 animate-pulse rounded-2xl" />
-});
-import "react-quill-new/dist/quill.snow.css";
 
 export const ProductForm = ({ onSuccess, initialData }: { onSuccess: () => void, initialData?: any }) => {
   const { createMutation, updateMutation } = useProductMutations();
   const { data: categories } = useCategories();
   const isEdit = !!initialData;
   
-  const { register, handleSubmit, setValue, watch, reset } = useForm({
+  const { register, handleSubmit, reset } = useForm({
     defaultValues: {
       title: "",
       description: "",
@@ -43,53 +36,6 @@ export const ProductForm = ({ onSuccess, initialData }: { onSuccess: () => void,
     }
   }, [initialData, reset]);
 
-  // Konfigurasi lengkap untuk React Quill
-  const modules = useMemo(() => ({
-    toolbar: {
-      container: [
-        [{ header: [1, 2, 3, 4, 5, 6, false] }],
-        [{ font: [] }],
-        [{ size: ["small", false, "large", "huge"] }],
-        ["bold", "italic", "underline", "strike"],
-        [{ color: [] }, { background: [] }],
-        [{ script: "sub" }, { script: "super" }],
-        [{ list: "ordered" }, { list: "bullet" }],
-        [{ indent: "-1" }, { indent: "+1" }],
-        [{ direction: "rtl" }],
-        [{ align: [] }],
-        ["blockquote", "code-block"],
-        ["link", "image", "video"],
-        ["clean"]
-      ]
-    },
-    clipboard: {
-      matchVisual: false
-    }
-  }), []);
-
-  // Format yang didukung
-  const formats = [
-    "header", 
-    "font", 
-    "size",
-    "bold", 
-    "italic", 
-    "underline", 
-    "strike",
-    "color", 
-    "background",
-    "script",
-    "list",
-    "indent",
-    "direction", 
-    "align",
-    "blockquote", 
-    "code-block",
-    "link", 
-    "image", 
-    "video"
-  ];
-
   const onSubmit = async (data: any) => {
     console.log("📝 Data produk yang akan dikirim:", data);
     
@@ -99,7 +45,6 @@ export const ProductForm = ({ onSuccess, initialData }: { onSuccess: () => void,
     formData.append("link", data.link || "");
     formData.append("categoryId", data.categoryId);
     
-    // Ambil file gambar secara manual
     const fileInput = document.getElementById('fileInput') as HTMLInputElement;
     if (fileInput?.files?.[0]) {
       formData.append("image", fileInput.files[0]);
@@ -172,19 +117,12 @@ export const ProductForm = ({ onSuccess, initialData }: { onSuccess: () => void,
 
         <div>
           <label className="text-[10px] font-black text-gray-400 ml-2 uppercase tracking-widest">Deskripsi</label>
-          <div className="mt-1 bg-gray-50 rounded-2xl overflow-hidden border border-gray-100">
-            <ReactQuill 
-              theme="snow"
-              value={watch("description")}
-              onChange={(value) => {
-                console.log("✏️ Quill onChange dipanggil");
-                setValue("description", value);
-              }}
-              modules={modules}
-              formats={formats}
-              placeholder="Tuliskan deskripsi produk di sini..."
-            />
-          </div>
+          <textarea
+            {...register("description")}
+            rows={8}
+            className="w-full p-4 mt-1 rounded-2xl bg-gray-50 border border-gray-100 text-xs font-medium text-gray-700 focus:ring-2 focus:ring-[#1e3a5f] focus:outline-none resize-none"
+            placeholder="Tuliskan deskripsi produk di sini..."
+          />
         </div>
       </div>
 
@@ -227,30 +165,6 @@ export const ProductForm = ({ onSuccess, initialData }: { onSuccess: () => void,
           )}
         </button>
       </div>
-
-      {/* Global Style untuk Quill */}
-      <style jsx global>{`
-        .ql-toolbar.ql-snow {
-          border: none !important;
-          background: #f1f5f9;
-          border-bottom: 1px solid #e2e8f0 !important;
-          padding: 12px !important;
-          border-radius: 1rem 1rem 0 0;
-        }
-        .ql-container.ql-snow {
-          border: none !important;
-          min-height: 200px;
-          font-family: inherit;
-          font-size: 0.95rem;
-        }
-        .ql-editor {
-          padding: 20px !important;
-        }
-        .ql-editor.ql-blank::before {
-          color: #cbd5e1 !important;
-          font-style: normal !important;
-        }
-      `}</style>
     </form>
   );
 };

@@ -2,25 +2,35 @@
 
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
-import { useProfile } from "@/src/hooks/useProfile"; // Pastikan path hook benar
+import { useProfile } from "@/src/hooks/useProfile"; 
 import { Upload, Save, Building2, FileText, Image as ImageIcon, Loader2 } from "lucide-react";
 
 export default function ProfileAdminPage() {
   const { profile, isLoading, updateProfile } = useProfile();
-  const { register, handleSubmit, setValue, watch } = useForm();
+  const { register, handleSubmit, setValue } = useForm();
   const [previewLogo, setPreviewLogo] = useState<string | null>(null);
 
-  // Perhatikan: Folder di backend adalah "upload", 
-  // tapi di app.use diekspos sebagai "/uploads".
-  const BACKEND_URL = "http://localhost:3000/uploads";
-
-  // Auto-fill form saat data berhasil ditarik
+  // LOGIKA BARU YANG LEBIH AMAN:
   useEffect(() => {
     if (profile && profile.name) {
       setValue("name", profile.name);
       setValue("description", profile.description);
+      
       if (profile.logo) {
-        setPreviewLogo(`${BACKEND_URL}/${profile.logo}`);
+        // 1. Ambil URL dasar dari .env (misal: http://127.0.0.1:3000/uploads)
+        const STORAGE_URL = process.env.NEXT_PUBLIC_STORAGE_URL || "";
+        
+        // 2. Bersihkan "/uploads" dari .env jika ada
+        const BASE_URL = STORAGE_URL.replace(/\/uploads$/, ""); 
+
+        // 3. Bersihkan "/" di awal data database jika ada (misal: /uploads/abc.jpg -> uploads/abc.jpg)
+        const CLEAN_LOGO_PATH = profile.logo.replace(/^\//, "");
+
+        // 4. Gabungkan: Hasilnya pasti http://127.0.0.1:3000/uploads/namafile.jpg
+        const finalUrl = `${BASE_URL}/${CLEAN_LOGO_PATH}`;
+        
+        console.log("Debug URL Preview:", finalUrl); // Cek di console F12 browser
+        setPreviewLogo(finalUrl);
       }
     }
   }, [profile, setValue]);
@@ -30,7 +40,6 @@ export default function ProfileAdminPage() {
     formData.append("name", data.name);
     formData.append("description", data.description);
     
-    // Ambil file asli dari FileList
     if (data.logo && data.logo[0]) {
       formData.append("logo", data.logo[0]); 
     }
@@ -59,7 +68,6 @@ export default function ProfileAdminPage() {
       </div>
 
       <form onSubmit={handleSubmit(onSubmit)} className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* KOLOM KIRI: INPUT TEKS */}
         <div className="lg:col-span-2 space-y-6">
           <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 space-y-4">
             <div className="flex items-center gap-2 text-gray-500 mb-2">
@@ -71,8 +79,7 @@ export default function ProfileAdminPage() {
               <label className="text-sm font-semibold">Nama Website/Studio</label>
               <input 
                 {...register("name", { required: true })}
-                className="w-full p-3 rounded-xl bg-gray-50 border border-gray-200 focus:ring-2 focus:ring-blue-500 outline-none transition-all"
-                placeholder="Masukkan nama studio..."
+                className="w-full p-3 rounded-xl bg-gray-50 border border-gray-200 outline-none"
               />
             </div>
 
@@ -81,14 +88,12 @@ export default function ProfileAdminPage() {
               <textarea 
                 {...register("description", { required: true })}
                 rows={8}
-                className="w-full p-3 rounded-xl bg-gray-50 border border-gray-200 focus:ring-2 focus:ring-blue-500 outline-none transition-all resize-none"
-                placeholder="Jelaskan studio Anda kepada pengunjung..."
+                className="w-full p-3 rounded-xl bg-gray-50 border border-gray-200 outline-none resize-none"
               />
             </div>
           </div>
         </div>
 
-        {/* KOLOM KANAN: UPLOAD & PREVIEW */}
         <div className="space-y-6">
           <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 text-center">
              <div className="flex items-center justify-center gap-2 text-gray-500 mb-4">
@@ -116,12 +121,11 @@ export default function ProfileAdminPage() {
                 className="absolute inset-0 opacity-0 cursor-pointer"
               />
             </div>
-            <p className="text-[10px] text-gray-400 italic">Klik pada gambar untuk mengganti logo</p>
           </div>
 
           <button 
             type="submit"
-            className="w-full py-4 rounded-2xl bg-[#1e3a5f] hover:bg-[#2d507d] text-white font-bold flex items-center justify-center gap-2 transition-all shadow-lg"
+            className="w-full py-4 rounded-2xl bg-[#1e3a5f] hover:bg-[#2d507d] text-white font-bold flex items-center justify-center gap-2"
           >
             <Save size={20} />
             SIMPAN PERUBAHAN

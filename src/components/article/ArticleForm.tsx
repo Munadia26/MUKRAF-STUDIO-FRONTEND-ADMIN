@@ -1,24 +1,14 @@
 "use client";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
-import dynamic from "next/dynamic";
 import { useArticleMutations } from "@/src/hooks/useArticle";
 import { Image as ImageIcon, Save, Loader2, RefreshCw, Type } from "lucide-react";
-
-// 1. Import CSS khusus react-quill-new
-import "react-quill-new/dist/quill.snow.css";
-
-// 2. Load Quill secara dinamis dengan loading state agar tidak layout shift
-const ReactQuill = dynamic(() => import("react-quill-new"), { 
-  ssr: false,
-  loading: () => <div className="h-40 w-full bg-gray-50 animate-pulse rounded-2xl border border-gray-100" />
-});
 
 export const ArticleForm = ({ onSuccess, initialData }: { onSuccess: () => void, initialData?: any }) => {
   const { createMutation, updateMutation } = useArticleMutations();
   const isEdit = !!initialData;
   
-  const { register, handleSubmit, reset, setValue, watch } = useForm({
+  const { register, handleSubmit, reset } = useForm({
     defaultValues: initialData || { title: "", description: "" }
   });
 
@@ -26,10 +16,6 @@ export const ArticleForm = ({ onSuccess, initialData }: { onSuccess: () => void,
     initialData?.image ? `http://localhost:3000/uploads/${initialData.image}` : null
   );
 
-  // Ambil value deskripsi untuk disinkronkan ke Quill
-  const descriptionValue = watch("description");
-
-  // 3. Sinkronisasi data saat mode EDIT aktif
   useEffect(() => {
     if (initialData) {
       reset({
@@ -48,7 +34,6 @@ export const ArticleForm = ({ onSuccess, initialData }: { onSuccess: () => void,
     formData.append("title", data.title);
     formData.append("description", data.description);
     
-    // Kirim file gambar jika ada perubahan/penambahan
     if (data.image && data.image[0] instanceof File) {
       formData.append("image", data.image[0]);
     }
@@ -79,51 +64,18 @@ export const ArticleForm = ({ onSuccess, initialData }: { onSuccess: () => void,
         />
       </div>
 
-      {/* RICH TEXT EDITOR (QUILL) */}
+      {/* TEXTAREA ISI KONTEN */}
       <div className="group">
-  <label className="text-[10px] font-black text-gray-400 ml-2 uppercase tracking-[0.2em]">Isi Konten & Media</label>
-  <div className="mt-2 rounded-2xl overflow-hidden border border-gray-100 shadow-sm">
-    <ReactQuill 
-      theme="snow"
-      value={descriptionValue}
-      onChange={(content) => setValue("description", content)}
-      className="article-editor"
-      modules={{
-        toolbar: [
-          [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
-          [{ 'size': ['small', false, 'large', 'huge'] }],
-          ['bold', 'italic', 'underline', 'strike'],
-          [{ 'color': [] }, { 'background': [] }],
-          [{ 'script': 'sub'}, { 'script': 'super' }],
-          // 'list' digunakan untuk ordered dan bullet
-          [{ 'list': 'ordered'}, { 'list': 'bullet' }], 
-          [{ 'indent': '-1'}, { 'indent': '+1' }],
-          [{ 'align': [] }],
-          ['link', 'image', 'video'],
-          ['blockquote', 'code-block'],
-          ['clean']
-        ],
-        clipboard: {
-          matchVisual: false
-        }
-      }}
-      // PERBAIKAN DI SINI:
-      formats={[
-        'header', 'size',
-        'bold', 'italic', 'underline', 'strike',
-        'color', 'background',
-        'script',
-        'list', 'indent', // Cukup gunakan 'list', hapus 'bullet'
-        'align',
-        'link', 'image', 'video',
-        'blockquote', 'code-block'
-        // Hapus 'width', 'height', dan 'style' karena tidak terdaftar secara default
-      ]}
-    />
-  </div>
-</div>
+        <label className="text-[10px] font-black text-gray-400 ml-2 uppercase tracking-[0.2em]">Isi Konten</label>
+        <textarea
+          {...register("description")}
+          rows={10}
+          placeholder="Tuliskan isi artikel di sini..."
+          className="w-full p-4 mt-2 rounded-2xl bg-gray-50 border border-gray-100 text-xs font-medium text-gray-700 focus:ring-2 focus:ring-[#1e3a5f] focus:outline-none resize-none leading-relaxed"
+        />
+      </div>
 
-      {/* UPLOAD BANNER UTAMA */}
+      {/* UPLOAD THUMBNAIL */}
       <div className="space-y-2">
         <label className="text-[10px] font-black text-gray-400 ml-2 uppercase tracking-[0.2em]">Thumbnail Artikel</label>
         <div className="relative h-44 w-full rounded-[2rem] border-2 border-dashed border-gray-200 bg-gray-50 flex items-center justify-center overflow-hidden transition-all hover:border-[#1e3a5f]/30">
@@ -159,30 +111,6 @@ export const ArticleForm = ({ onSuccess, initialData }: { onSuccess: () => void,
         ) : isEdit ? <RefreshCw size={18} /> : <Save size={18} />}
         {isEdit ? "Simpan Perubahan" : "Publikasikan Sekarang"}
       </button>
-
-      {/* CSS Override untuk menyesuaikan tema Navy */}
-      <style jsx global>{`
-        .ql-toolbar.ql-snow {
-          border: none !important;
-          background: #f8fafc;
-          padding: 12px !important;
-        }
-        .ql-container.ql-snow {
-          border: none !important;
-          min-height: 200px;
-          font-family: inherit;
-        }
-        .ql-editor {
-          font-size: 13px;
-          color: #334155;
-          line-height: 1.6;
-        }
-        .ql-editor.ql-blank::before {
-          font-style: normal;
-          color: #cbd5e1;
-          font-weight: 600;
-        }
-      `}</style>
     </form>
   );
 };

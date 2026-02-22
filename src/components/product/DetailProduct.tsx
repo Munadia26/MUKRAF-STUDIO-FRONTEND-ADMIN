@@ -20,18 +20,16 @@ export const DetailProduct = ({ data }: { data: any }) => (
             Kategori #{data.categoryId}
           </span>
         </div>
-        <h3 className="text-2xl font-bold text-gray-900">{data.title}</h3>
+        <h3 className="text-2xl font-bold text-gray-900 break-words">{data.title}</h3>
       </div>
 
       <div>
         <label className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
           Deskripsi
         </label>
-        {/* PERBAIKAN DI SINI: Menggunakan dangerouslySetInnerHTML */}
-        <div 
-          className="text-sm text-gray-600 leading-relaxed mt-1 detail-description"
-          dangerouslySetInnerHTML={{ __html: data.description }} 
-        />
+        <p className="text-sm text-gray-600 leading-relaxed mt-1 whitespace-pre-wrap break-words w-full overflow-hidden">
+          {data.description}
+        </p>
       </div>
 
       {data.link && (
@@ -48,17 +46,5 @@ export const DetailProduct = ({ data }: { data: any }) => (
         </div>
       )}
     </div>
-
-    {/* Optional: Tambahkan sedikit CSS untuk merapikan list/bold di dalam deskripsi */}
-    <style jsx global>{`
-      .detail-description ul {
-        list-style-type: disc;
-        margin-left: 1.5rem;
-      }
-      .detail-description ol {
-        list-style-type: decimal;
-        margin-left: 1.5rem;
-      }
-    `}</style>
   </div>
 );
